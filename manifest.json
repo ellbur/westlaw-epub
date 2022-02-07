@@ -1,0 +1,12 @@
+{
+  "name": "westlaw-epub",
+  "description": "Converts case on Westlaw to EPUB",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "host_permissions": [
+    "https://1.next.westlaw.com/Document/*/View/FullText.html*"
+  ],
+  "action" : {
+    "default_popup": "popup.html"
+  }
+}
