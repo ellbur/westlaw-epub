@@ -6,7 +6,17 @@
   "host_permissions": [
     "https://1.next.westlaw.com/Document/*/View/FullText.html*"
   ],
-  "action" : {
+  "permissions": ["activeTab"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
     "default_popup": "popup.html"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://1.next.westlaw.com/Document/*/View/FullText.html*"],
+      "js": ["content.js"]
+    }
+  ]
 }
