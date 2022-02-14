@@ -1,5 +1,8 @@
 
-chrome.browserAction.onClicked.addListener(tab => {
-  console.log('Got a click on tab with id', tab.id);
+chrome.action.onClicked.addListener(tab => {
+  console.log('Browser action triggered');
+  chrome.tabs.sendMessage(tab.id, {text: 'do_epub'}, response => {
+    console.log('Got response', response);
+  });
 });
 

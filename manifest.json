@@ -6,12 +6,12 @@
   "host_permissions": [
     "https://1.next.westlaw.com/Document/*/View/FullText.html*"
   ],
-  "permissions": ["activeTab"],
-  "background": {
-    "scripts": ["background.js"]
-  },
+  "permissions": ["activeTab", "scripting"],
   "action": {
-    "default_popup": "popup.html"
+    "default_title": "Download EPUB"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
