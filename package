@@ -1,0 +1,15 @@
+#!/usr/bin/env rakudo
+
+my $here = $*PROGRAM-NAME.IO.parent;
+
+my $extension-dir = $here.add: 'extension';
+
+my $zip-file = $here.add: 'westlaw-epub.zip';
+
+run 'rm', '-f', '--', $zip-file.absolute;
+
+my @extension-files = $extension-dir.dir;
+my @extension-file-names = @extension-files>>.basename;
+
+run 'zip', '-r', $zip-file.absolute, '--', @extension-file-names, cwd => $extension-dir;
+

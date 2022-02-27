@@ -1,3 +1,4 @@
 /extension/content.js
 *.pem
 *.crx
+/westlaw-epub.zip
