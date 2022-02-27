@@ -1,12 +1,14 @@
 {
   "name": "westlaw-epub",
   "description": "Converts case on Westlaw to EPUB",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "icons" : {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "manifest_version": 3,
-  "host_permissions": [
-    "https://1.next.westlaw.com/Document/*/View/FullText.html*"
-  ],
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab"],
   "action": {
     "default_title": "Download EPUB"
   },
