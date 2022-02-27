@@ -1,1 +1,3 @@
 /extension/content.js
+*.pem
+*.crx
