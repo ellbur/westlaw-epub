@@ -177,6 +177,10 @@ function gatherFootnotes() {
   var res = [ ];
   
   var footnoteSection = document.getElementById('co_footnoteSection');
+  if (footnoteSection === null) {
+    return [ ];
+  }
+  
   for (var d of footnoteSection.children) {
     if (d.tagName.toUpperCase() == 'DIV') {
       var footnoteNumber = d.querySelector('.co_footnoteNumber');
