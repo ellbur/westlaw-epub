@@ -4,19 +4,18 @@
   "scripts": {
     "clean": "rimraf dist/*",
     "build:js": "webpack",
-    "build": "run-s build:* && cp dist/bundle.js ../extension/content.js",
-    "watch:js": "onchange \"src/js\" -- webpack",
-    "watch": "run-p serve watch:*"
+    "build": "run-s build:* && cp dist/bundle.js ../extension/content.js"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "onchange": "^7.1.0",
     "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2"
+    "webpack-cli": "^4.9.2",
+    "serve": "^13.0.2"
   },
   "dependencies": {
-    "jszip": "^3.7.1",
     "file-saver": "^2.0.5",
+    "jszip": "^3.7.1",
     "uuid": "^8.3.2"
   }
 }
