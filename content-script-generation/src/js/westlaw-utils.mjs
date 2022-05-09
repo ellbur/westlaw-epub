@@ -200,6 +200,11 @@ function gatherBody(cite, court, caption, docket, footnotes) {
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_headtext')) {
       outElems.push(processHeadtext(item));
     }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_contentBlock')) {
+      for (const child of item.children) {
+        process2(child);
+      }
+    }
   }
   
   for (const child of root.children) {
