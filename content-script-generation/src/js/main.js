@@ -33,6 +33,7 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" epub:prefix="z3998: http://www.daisy.org/z3998/2012/vocab/structure/#" lang="en" xml:lang="en">
   <head>
     ${chapterTitle.outerHTML}
+    <link rel="stylesheet" type="text/css" href="style.css"/>
   </head>
   <body>
     ${dummyBody.innerHTML}
@@ -59,7 +60,7 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
   </metadata>
   <manifest>
     <item href="ch01.xhtml" id="chapter_0" media-type="application/xhtml+xml"/>
-    <item href="style/nav.css" id="style_nav" media-type="text/css"/>
+    <item href="style.css" id="style" media-type="text/css"/>
     <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
     <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
   </manifest>
@@ -90,8 +91,12 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
 </html>
 `);
 
-    // EPUB/style/nav.css
-    zip.file('EPUB/style/nav.css', ``);
+    // EPUB/style/style.css
+    zip.file('EPUB/style.css', `
+.footnote {
+  margin-left: 2em;
+}
+`);
 
     // EPUB/toc.ncx
     zip.file('EPUB/toc.ncx',
