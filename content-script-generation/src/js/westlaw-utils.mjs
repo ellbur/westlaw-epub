@@ -46,7 +46,9 @@ function processParagraph(p) {
         res.footnotes.push(...sub.footnotes);
       }
       else if (child.tagName.toUpperCase() == 'A') {
-        if (child.classList.contains('co_footnoteReference')) {
+        if (child.classList.contains('co_headnoteLink')) {
+        }
+        else if (child.classList.contains('co_footnoteReference')) {
           var call = document.createElement('sup');
           call.appendChild(new Text(child.textContent));
           res.children.push(call);
@@ -114,17 +116,29 @@ function processHeadtext(item) {
   if (item.classList.contains('co_hAlign2')) {
     var h1 = document.createElement('h1');
     h1.innerText = item.textContent;
-    return h1;
+    return [ h1 ];
   }
   else if (item.classList.contains('co_hAlign1')) {
     var h2 = document.createElement('h2');
     h2.innerText = item.textContent;
-    return h2;
+    return [ h2 ];
   }
   else {
-    var h3 = document.createElement('h3');
-    h3.innerText = item.textContent;
-    return h3;
+    const childHeadText = item.querySelector('.co_headtext');
+    if (childHeadText) {
+      const res = [ ];
+      for (const child of item.children) {
+        if (child.tagName.toUpperCase() === 'DIV' && child.classList.contains('co_headtext')) {
+          res.push(...processHeadtext(child));
+        }
+      }
+      return res;
+    }
+    else {
+      var h3 = document.createElement('h3');
+      h3.innerText = item.textContent;
+      return [ h3 ];
+    }
   }
 }
 
@@ -134,8 +148,6 @@ function processParagraphWithItsFootnotes(item, footnoteTable) {
   var proc = processParagraphSet(item);
   outElems.push(...proc.children);
 
-  const footnoteUL = document.createElement('ul');
-  
   for (var href of proc.footnotes) {
     var foundFN = footnoteTable[href];
     if (typeof foundFN !== 'undefined') {
@@ -146,20 +158,18 @@ function processParagraphWithItsFootnotes(item, footnoteTable) {
         pars[0].prepend(sup);
       }
       for (var fnP of pars) {
-        const li = document.createElement('li');
+        const li = document.createElement('p');
         li.classList.add('footnote');
         const small = document.createElement('small');
         li.append(small);
         small.append(...fnP.childNodes);
-        footnoteUL.append(li);
+        outElems.push(li);
       }
     }
     else {
       console.log('Failed to find footnote', href);
     }
   }
-  
-  outElems.push(footnoteUL);
   
   return outElems;
 }
@@ -181,6 +191,18 @@ function gatherBody(cite, court, caption, docket, footnotes) {
         process1(child);
       }
     }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_synopsis')) {
+      // Skip
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_proceduralPostureBlock')) {
+      // Skip
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_headnotes')) {
+      // Skip
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_attorneyBlock')) {
+      // Skip
+    }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_contentBlock')) {
       for (const child of item.children) {
         process2(child);
@@ -194,11 +216,17 @@ function gatherBody(cite, court, caption, docket, footnotes) {
         process2(child);
       }
     }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('x_concurranceAuthorLine')) {
+      outElems.push(makeH1(item.innerText));
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('x_dissentAuthorLine')) {
+      outElems.push(makeH1(item.innerText));
+    }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_paragraph')) {
       outElems.push(...processParagraphWithItsFootnotes(item, footnoteTable));
     }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_headtext')) {
-      outElems.push(processHeadtext(item));
+      outElems.push(...processHeadtext(item));
     }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_contentBlock')) {
       for (const child of item.children) {
@@ -284,6 +312,12 @@ function gatherFootnotes() {
 
 function makeP(text) {
   var p = document.createElement('p');
+  p.innerText = text;
+  return p;
+}
+
+function makeH1(text) {
+  var p = document.createElement('h1');
   p.innerText = text;
   return p;
 }
