@@ -1,4 +1,6 @@
 
+'use strict';
+
 function combineParOuts(p1, p2) {
   return {
     children: p1.children.concat(p2.children),
@@ -46,7 +48,7 @@ function processParagraph(p) {
         res.footnotes.push(...sub.footnotes);
       }
       else if (child.tagName.toUpperCase() == 'A') {
-        if (child.classList.contains('co_headnoteLink')) {
+        if (child.classList.contains('co_headnoteLink') || child.classList.contains('co_excludeAnnotations')) {
         }
         else if (child.classList.contains('co_footnoteReference')) {
           var call = document.createElement('sup');
@@ -70,58 +72,63 @@ function processParagraph(p) {
   return res;
 }
 
-function processParagraphSet(div) {
+function processParagraphSet(div, parType) {
   var res = {
     children: [ ],
     footnotes: [ ]
   };
   
-  for (var child of div.children) {
-    if (child.classList.contains('co_paragraphText')) {
-      var c1 = processParagraph(child);
-      var p = document.createElement('p');
-      for (var u of c1.children) { p.appendChild(u); }
-      res.children.push(p);
-      res.footnotes.push(...c1.footnotes);
-    }
-    else if (child.classList.contains('co_paragraph')) {
-      if (child.classList.contains('co_indentLeft1')) {
+  if (div.classList.contains('co_headtext') || div.classList.contains('co_paragraphText')) {
+    var c1 = processParagraph(div);
+    var p = document.createElement(parType);
+    for (var u of c1.children) { p.appendChild(u); }
+    res.children.push(p);
+    res.footnotes.push(...c1.footnotes);
+  }
+  else {
+    for (var child of div.children) {
+      if (child.classList.contains('co_paragraphText') || child.classList.contains('co_headtext')) {
         var c1 = processParagraph(child);
-        var p = document.createElement('blockquote');
+        var p = document.createElement(parType);
         for (var u of c1.children) { p.appendChild(u); }
         res.children.push(p);
         res.footnotes.push(...c1.footnotes);
+      }
+      else if (child.classList.contains('co_paragraph')) {
+        if (child.classList.contains('co_indentLeft1')) {
+          var c1 = processParagraph(child);
+          var p = document.createElement('blockquote');
+          for (var u of c1.children) { p.appendChild(u); }
+          res.children.push(p);
+          res.footnotes.push(...c1.footnotes);
+        }
+        else {
+          var c1 = processParagraph(child);
+          var p = document.createElement(parType);
+          for (var u of c1.children) { p.appendChild(u); }
+          res.children.push(p);
+          res.footnotes.push(...c1.footnotes);
+        }
       }
       else {
         var c1 = processParagraph(child);
-        var p = document.createElement('p');
+        var p = document.createElement(parType);
         for (var u of c1.children) { p.appendChild(u); }
         res.children.push(p);
         res.footnotes.push(...c1.footnotes);
       }
-    }
-    else {
-      var c1 = processParagraph(child);
-      var p = document.createElement('p');
-      for (var u of c1.children) { p.appendChild(u); }
-      res.children.push(p);
-      res.footnotes.push(...c1.footnotes);
     }
   }
   
   return res;
 }
 
-function processHeadtext(item) {
+function processHeadtext(item, footnoteTable) {
   if (item.classList.contains('co_hAlign2')) {
-    var h1 = document.createElement('h1');
-    h1.innerText = item.textContent;
-    return [ h1 ];
+    return processParagraphWithItsFootnotes(item, 'h1', footnoteTable);
   }
   else if (item.classList.contains('co_hAlign1')) {
-    var h2 = document.createElement('h2');
-    h2.innerText = item.textContent;
-    return [ h2 ];
+    return processParagraphWithItsFootnotes(item, 'h2', footnoteTable);
   }
   else {
     const childHeadText = item.querySelector('.co_headtext');
@@ -129,23 +136,21 @@ function processHeadtext(item) {
       const res = [ ];
       for (const child of item.children) {
         if (child.tagName.toUpperCase() === 'DIV' && child.classList.contains('co_headtext')) {
-          res.push(...processHeadtext(child));
+          res.push(...processHeadtext(child, footnoteTable));
         }
       }
       return res;
     }
     else {
-      var h3 = document.createElement('h3');
-      h3.innerText = item.textContent;
-      return [ h3 ];
+      return processParagraphWithItsFootnotes(item, 'h3', footnoteTable);
     }
   }
 }
 
-function processParagraphWithItsFootnotes(item, footnoteTable) {
+function processParagraphWithItsFootnotes(item, parType, footnoteTable) {
   var outElems = [ ];
   
-  var proc = processParagraphSet(item);
+  var proc = processParagraphSet(item, parType);
   outElems.push(...proc.children);
 
   for (var href of proc.footnotes) {
@@ -160,6 +165,7 @@ function processParagraphWithItsFootnotes(item, footnoteTable) {
       for (var fnP of pars) {
         const li = document.createElement('p');
         li.classList.add('footnote');
+        li.style.fontSize = 'small';
         const small = document.createElement('small');
         li.append(small);
         small.append(...fnP.childNodes);
@@ -223,10 +229,10 @@ function gatherBody(cite, court, caption, docket, footnotes) {
       outElems.push(makeH1(item.innerText));
     }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_paragraph')) {
-      outElems.push(...processParagraphWithItsFootnotes(item, footnoteTable));
+      outElems.push(...processParagraphWithItsFootnotes(item, 'p', footnoteTable));
     }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_headtext')) {
-      outElems.push(...processHeadtext(item));
+      outElems.push(...processHeadtext(item, footnoteTable));
     }
     else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('co_contentBlock')) {
       for (const child of item.children) {
@@ -328,6 +334,7 @@ export function gatherParts() {
   var caption = document.querySelector('.co_title')?.textContent ?? '';
   var docket = document.querySelector('.co_docketDate')?.textContent ?? '';
   var shortTitle = document.getElementById('title')?.innerText ?? '';
+  var authoringJudge = document.querySelector('.x_leadAuthorLine')?.textContent ?? '';
 
   var footnotes = gatherFootnotes();
   var bodyElems = gatherBody(cite, court, caption, docket, footnotes);
@@ -337,6 +344,7 @@ export function gatherParts() {
   return {
     cite: cite,
     court: court,
+    authoringJudge: authoringJudge,
     caption: caption,
     docket: docket,
     shortTitle: shortTitle,

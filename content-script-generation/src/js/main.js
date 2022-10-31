@@ -12,6 +12,7 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
     
     var cite = parts.cite;
     var court = parts.court;
+    var authoringJudge = parts.authoringJudge;
     var caption = parts.caption;
     var docket = parts.docket;
     var shortTitle = parts.shortTitle;
@@ -56,7 +57,7 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
     <dc:identifier id="id">${id}</dc:identifier>
     <dc:title>${shortTitle}</dc:title>
     <dc:language>en</dc:language>
-    <dc:creator id="creator">Author</dc:creator>
+    <dc:creator id="creator">${court}, ${authoringJudge}</dc:creator>
   </metadata>
   <manifest>
     <item href="ch01.xhtml" id="chapter_0" media-type="application/xhtml+xml"/>
@@ -95,6 +96,9 @@ chrome.runtime.onMessage.addListener(function (msg, _sender, _sendResponse) {
     zip.file('EPUB/style.css', `
 .footnote {
   margin-left: 2em;
+}
+p {
+  text-align: justify;
 }
 `);
 
