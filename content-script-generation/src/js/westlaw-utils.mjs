@@ -239,6 +239,24 @@ function gatherBody(cite, court, caption, docket, footnotes) {
         process2(child);
       }
     }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('CipDipContainer')) {
+      for (const child of item.children) {
+        process2(child);
+      }
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('CipDipHeader')) {
+      for (const child of item.children) {
+        process2(child);
+      }
+    }
+    else if (item.tagName.toUpperCase() === 'DIV' && item.classList.contains('CipDipContent')) {
+      for (const child of item.children) {
+        process2(child);
+      }
+    }
+    else {
+      // Skip
+    }
   }
   
   for (const child of root.children) {
