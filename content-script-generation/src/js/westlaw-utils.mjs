@@ -20,7 +20,11 @@ function processParagraph(p) {
     }
     else if (child instanceof Element) {
       if (child.tagName.toUpperCase() == 'DIV') {
-        res = combineParOuts(res, processParagraph(child));
+        if (child.classList.contains('Athens-headnotesPopupWrapper') || child.classList.contains('co_excludeAnnotations')) {
+        }
+        else {
+          res = combineParOuts(res, processParagraph(child));
+        }
       }
       else if (child.tagName.toUpperCase() == 'SPAN') {
         if (child.classList.contains('co_starPage')) {
@@ -79,6 +83,13 @@ function processParagraphSet(div, parType) {
   };
   
   if (div.classList.contains('co_headtext') || div.classList.contains('co_paragraphText')) {
+    var c1 = processParagraph(div);
+    var p = document.createElement(parType);
+    for (var u of c1.children) { p.appendChild(u); }
+    res.children.push(p);
+    res.footnotes.push(...c1.footnotes);
+  }
+  else if (div.tagName.toUpperCase() === 'H2') {
     var c1 = processParagraph(div);
     var p = document.createElement(parType);
     for (var u of c1.children) { p.appendChild(u); }
@@ -253,6 +264,9 @@ function gatherBody(cite, court, caption, docket, footnotes) {
       for (const child of item.children) {
         process2(child);
       }
+    }
+    else if (item.tagName.toUpperCase() === 'H2') {
+      outElems.push(...processParagraphWithItsFootnotes(item, 'h1', footnoteTable))
     }
     else {
       // Skip
